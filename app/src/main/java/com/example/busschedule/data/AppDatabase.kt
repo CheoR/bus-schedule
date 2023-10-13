@@ -12,8 +12,8 @@ import androidx.room.RoomDatabase
 // version - increase version number whenever database table schema changes.
 // exportSchema - set as false as to not keep schema version history backup
 @Database(entities = [BusSchedule::class], version = 1, exportSchema = false)
-abstract class ScheduleDatabase : RoomDatabase() {
-    abstract fun scheduleDao(): ScheduleDao
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun busScheduleDao(): BusScheduleDao
     // allows access to methods to create or get database and use class name as
     // qualifier
     companion object {
@@ -26,9 +26,9 @@ abstract class ScheduleDatabase : RoomDatabase() {
         // changes made by one thread to Instance are immediately visible to all
         // other threads.
         @Volatile
-        private var Instance: ScheduleDatabase? = null
+        private var Instance: AppDatabase? = null
 
-        fun getDatabase(context: Context): ScheduleDatabase {
+        fun getDatabase(context: Context): AppDatabase {
             // if the Instance is not null, return it, otherwise create a new
             // database instance.
             // synchronized block means that only one thread of execution at
@@ -36,7 +36,11 @@ abstract class ScheduleDatabase : RoomDatabase() {
             // gets initialized once.
             return Instance ?: synchronized(this) {
                 Room
-                    .databaseBuilder(context, ScheduleDatabase::class.java, "schedule_database")
+                    .databaseBuilder(
+                        context,
+                        AppDatabase::class.java, "schedule_database"
+                    )
+                    .createFromAsset("database/bus_schedule.db")
                     /**
                      * Setting option in app's database builder means that Room
                      * permanently deletes all data from database tables when it
